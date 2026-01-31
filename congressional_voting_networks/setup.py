@@ -37,7 +37,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "voting-networks=main:main",
+            "voting-networks=congressional_voting_networks.main:main",
         ],
     },
 )

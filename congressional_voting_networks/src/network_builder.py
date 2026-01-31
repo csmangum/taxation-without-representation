@@ -6,8 +6,7 @@ network types including co-voting similarity networks and bipartite graphs.
 """
 
 import logging
-from typing import Optional, Dict, List, Tuple, Union
-from itertools import combinations
+from typing import Optional, Dict, List, Tuple
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
@@ -97,27 +96,60 @@ class CongressionalNetworkBuilder:
         return sim_matrix
     
     def _compute_agreement_matrix(self) -> np.ndarray:
-        """Compute agreement rate matrix (proportion of same votes)."""
-        n = self.vote_matrix.shape[0]
-        matrix = self.vote_matrix.toarray()
-        
-        agreement = np.zeros((n, n))
-        
-        for i in range(n):
-            for j in range(i, n):
-                votes_i = matrix[i]
-                votes_j = matrix[j]
-                
-                # Only count votes where both legislators voted
-                mask = (votes_i != 0) & (votes_j != 0)
-                if mask.sum() > 0:
-                    agree = (votes_i[mask] == votes_j[mask]).sum()
-                    agreement[i, j] = agree / mask.sum()
-                    agreement[j, i] = agreement[i, j]
-                else:
-                    agreement[i, j] = 0
-                    agreement[j, i] = 0
-        
+        """Compute agreement rate matrix (proportion of same votes).
+
+        Agreement between two legislators is defined as:
+            (# of roll calls where both cast a non-zero vote and the votes are equal)
+            divided by
+            (# of roll calls where both cast a non-zero vote).
+
+        This implementation leverages sparse matrix operations to avoid
+        densifying the vote matrix itself, which can be memory-intensive
+        for large datasets. The final agreement matrix is dense, as in the
+        original implementation.
+        """
+        # Ensure CSR format for efficient row operations and comparisons
+        votes = self.vote_matrix.tocsr()
+        n = votes.shape[0]
+
+        if n == 0:
+            return np.zeros((0, 0), dtype=float)
+
+        # 1) Compute, for each pair of legislators, how many roll calls both voted on.
+        #    We treat any non-zero entry as a "voted" indicator.
+        if votes.nnz == 0:
+            # No recorded votes; by convention, return identity matrix
+            agreement = np.eye(n, dtype=float)
+            return agreement
+
+        voted = votes.copy()
+        # Set all non-zero entries to 1.0 to form a voting indicator matrix
+        voted.data = np.ones_like(voted.data, dtype=np.float64)
+
+        # common_counts[i, j] = number of roll calls where both i and j have non-zero votes
+        common_counts = (voted @ voted.T).toarray()
+
+        # 2) Compute, for each pair, how many times they cast the *same* non-zero vote.
+        same_counts = np.zeros((n, n), dtype=np.float64)
+
+        # Unique non-zero vote values (e.g., encodings for "yea", "nay", etc.)
+        unique_values = np.unique(votes.data)
+
+        for val in unique_values:
+            # Indicator matrix for entries equal to the specific vote value
+            equal_val = (votes == val).astype(np.float64)
+            if equal_val.nnz == 0:
+                continue
+            # Counts of co-occurring equal votes with this value
+            same_counts += (equal_val @ equal_val.T).toarray()
+
+        # 3) Compute agreement as same_counts / common_counts, guarding against division by zero
+        agreement = np.zeros_like(same_counts, dtype=np.float64)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            mask = common_counts > 0
+            agreement[mask] = same_counts[mask] / common_counts[mask]
+
+        # By definition, set self-agreement to 1.0
         np.fill_diagonal(agreement, 1.0)
         return agreement
     
@@ -140,8 +172,10 @@ class CongressionalNetworkBuilder:
         Returns:
             NetworkX Graph with weighted edges.
         """
-        if self.similarity_matrix is None or True:  # Always recompute for now
+        current_method = getattr(self, "_similarity_method", None)
+        if self.similarity_matrix is None or current_method != method:
             self.compute_similarity_matrix(method=method)
+            self._similarity_method = method
         
         G = nx.Graph()
         
@@ -514,8 +548,8 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
     # Example usage
-    from data_acquisition import VoteviewDataLoader
-    from preprocessing import VoteDataPreprocessor
+    from .data_acquisition import VoteviewDataLoader
+    from .preprocessing import VoteDataPreprocessor
     
     loader = VoteviewDataLoader()
     
