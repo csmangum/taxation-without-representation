@@ -118,7 +118,9 @@ class CongressionalNetworkBuilder:
         # 1) Compute, for each pair of legislators, how many roll calls both voted on.
         #    We treat any non-zero entry as a "voted" indicator.
         if votes.nnz == 0:
-            # No recorded votes; by convention, return identity matrix
+            # No recorded votes; by convention, return identity matrix.
+            # With no voting data, legislators have undefined relationships with each other (0.0),
+            # but we set self-agreement to 1.0 as a reasonable default.
             agreement = np.eye(n, dtype=float)
             return agreement
 
@@ -145,9 +147,8 @@ class CongressionalNetworkBuilder:
 
         # 3) Compute agreement as same_counts / common_counts, guarding against division by zero
         agreement = np.zeros_like(same_counts, dtype=np.float64)
-        with np.errstate(divide="ignore", invalid="ignore"):
-            mask = common_counts > 0
-            agreement[mask] = same_counts[mask] / common_counts[mask]
+        mask = common_counts > 0
+        agreement[mask] = same_counts[mask] / common_counts[mask]
 
         # By definition, set self-agreement to 1.0
         np.fill_diagonal(agreement, 1.0)
