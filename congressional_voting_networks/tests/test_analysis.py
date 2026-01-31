@@ -4,10 +4,7 @@ import pytest
 import numpy as np
 import networkx as nx
 
-import sys
-sys.path.insert(0, '..')
-
-from src.analysis import NetworkAnalyzer
+from congressional_voting_networks.src.analysis import NetworkAnalyzer
 
 
 @pytest.fixture

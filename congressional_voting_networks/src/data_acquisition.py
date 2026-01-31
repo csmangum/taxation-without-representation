@@ -4,7 +4,6 @@ Data Acquisition Module for Congressional Voting Networks.
 Downloads and manages voting record data from Voteview.com (UCLA Political Science).
 """
 
-import os
 import logging
 from pathlib import Path
 from typing import Optional

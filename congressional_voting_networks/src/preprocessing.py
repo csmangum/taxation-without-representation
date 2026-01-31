@@ -213,7 +213,6 @@ class VoteDataPreprocessor:
         congress: Optional[int] = None,
         congress_range: Optional[Tuple[int, int]] = None,
         chamber: Optional[str] = None,
-        exclude_abstains: bool = True,
         min_votes: int = 10
     ) -> Tuple[csr_matrix, np.ndarray, np.ndarray]:
         """
@@ -223,7 +222,6 @@ class VoteDataPreprocessor:
             congress: Single Congress number to filter.
             congress_range: Tuple (start, end) Congress range.
             chamber: "House" or "Senate" to filter.
-            exclude_abstains: If True, abstains are 0 and not counted in similarity.
             min_votes: Minimum votes a legislator must have to be included.
             
         Returns:
@@ -414,7 +412,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
     # Example usage
-    from data_acquisition import VoteviewDataLoader
+    from .data_acquisition import VoteviewDataLoader
     
     loader = VoteviewDataLoader()
     

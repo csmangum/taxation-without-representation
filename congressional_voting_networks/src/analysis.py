@@ -6,7 +6,7 @@ polarization measures, and temporal analysis of congressional networks.
 """
 
 import logging
-from typing import Optional, Dict, List, Tuple, Any
+from typing import Optional, Dict, Tuple, Any
 from collections import defaultdict
 import numpy as np
 import pandas as pd

@@ -6,10 +6,7 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 import networkx as nx
 
-import sys
-sys.path.insert(0, '..')
-
-from src.network_builder import CongressionalNetworkBuilder
+from congressional_voting_networks.src.network_builder import CongressionalNetworkBuilder
 
 
 @pytest.fixture

@@ -17,7 +17,6 @@ import seaborn as sns
 # Optional interactive visualization
 try:
     import plotly.graph_objects as go
-    import plotly.express as px
     HAS_PLOTLY = True
 except ImportError:
     HAS_PLOTLY = False
@@ -93,15 +92,16 @@ class NetworkVisualizer:
         elif layout == "circular":
             pos = nx.circular_layout(self.network)
         elif layout == "party_split":
-            pos = self._compute_party_split_layout()
+            pos = self._compute_party_split_layout(seed=seed)
         else:
             raise ValueError(f"Unknown layout: {layout}")
         
         self._pos = pos
         return pos
     
-    def _compute_party_split_layout(self) -> Dict:
+    def _compute_party_split_layout(self, seed: int = 42) -> Dict:
         """Compute layout with parties on opposite sides."""
+        rng = np.random.default_rng(seed)
         parties = {}
         for node in self.network.nodes():
             party = self.network.nodes[node].get('party_group', 'Other')
@@ -123,7 +123,7 @@ class NetworkVisualizer:
             
             for i, node in enumerate(nodes):
                 y = (i - n/2) / max(n, 1) * 2
-                x = x_base + np.random.uniform(-0.2, 0.2)
+                x = x_base + rng.uniform(-0.2, 0.2)
                 pos[node] = (x, y)
         
         return pos

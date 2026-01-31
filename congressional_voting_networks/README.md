@@ -137,7 +137,7 @@ congressional_voting_networks/
 
 ### Primary Dataset: Voteview.com
 
-- **Coverage**: 1st Congress (1789) to present (119th Congress as of 2026)
+- **Coverage**: 1st Congress (1789) through the most recently available Congress (currently the 119th)
 - **Files**:
   - `HSall_members.csv`: Legislator metadata (ICPSR ID, party, state, DW-NOMINATE scores)
   - `HSall_rollcalls.csv`: Vote metadata (date, bill, outcome)
