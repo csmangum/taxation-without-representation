@@ -5,10 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
 
-import sys
-sys.path.insert(0, '..')
-
-from src.preprocessing import VoteDataPreprocessor
+from congressional_voting_networks.src.preprocessing import VoteDataPreprocessor
 
 
 @pytest.fixture
