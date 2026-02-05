@@ -1,0 +1,70 @@
+# Arizona (AZ) - Judicial Integrity Analysis Configuration
+# Phase 1 target state
+
+state: az
+state_name: Arizona
+
+# Data source configuration
+data_sources:
+  courtlistener:
+    # Federal courts in Arizona
+    federal_courts:
+      - id: azd
+        name: District of Arizona
+        jurisdiction: FD
+    # State courts (for opinion search)
+    state_courts:
+      - id: ariz
+        name: Arizona Supreme Court
+      - id: arizctapp
+        name: Arizona Court of Appeals
+
+  judicial_conduct:
+    commission_url: https://www.azcourts.gov/cjc/
+    performance_review_url: https://www.azcourts.gov/jpr/
+
+  sentencing:
+    ussc_district: AZ
+    state_reports_url: https://www.azcourts.gov/
+
+# Analysis parameters
+analysis:
+  # Focus on criminal cases
+  case_types:
+    - criminal
+    - felony
+    - drug
+    - violent_crime
+    - white_collar
+
+  # Sentencing disparity analysis
+  demographic_columns:
+    - defendant_race
+    - defendant_gender
+    - defendant_age
+
+  # Minimum cases per judge for reliable statistics
+  min_cases_per_judge: 10
+
+  # Risk score thresholds
+  risk_thresholds:
+    disciplinary_high: 2
+    performance_low: 60.0
+    integrity_low: 60.0
+    departure_extreme_pct: 50.0
+
+# LLM auditing configuration
+llm_audit:
+  model: openai/gpt-4o
+  max_tokens: 2000
+  temperature: 0.3
+  rate_limit_delay: 2.0
+  max_judges_per_batch: 50
+
+# Output configuration
+output:
+  report_format: markdown
+  figures_dpi: 150
+  state_report_dir: output/reports/az
+  figures_dir: output/figures/az
+  data_dir: data/az

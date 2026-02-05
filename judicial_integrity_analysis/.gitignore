@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+coverage.xml
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Data files (large / generated)
+data/*/raw/*
+!data/*/raw/.gitkeep
+data/*/processed/*
+!data/*/processed/.gitkeep
+
+# Output files (generated)
+output/figures/*
+!output/figures/.gitkeep
+output/data/*
+!output/data/.gitkeep
+# Keep reports in git for publication
+# output/reports/*
+
+# API keys / secrets
+.env
+.envrc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

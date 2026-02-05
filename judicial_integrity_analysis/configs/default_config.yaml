@@ -1,0 +1,60 @@
+# Default configuration for Judicial Integrity Analysis
+# Override per-state with state-specific config files
+
+# General settings
+project_name: Judicial Integrity Analysis
+version: "0.1.0"
+
+# Data directories
+data:
+  base_dir: data
+  raw_subdir: raw
+  processed_subdir: processed
+  reports_subdir: reports
+
+# API settings (keys should be set via environment variables)
+api:
+  courtlistener:
+    base_url: https://www.courtlistener.com/api/rest/v4
+    rate_limit_delay: 1.0
+    # Set COURTLISTENER_API_TOKEN env var for authenticated access
+
+  openrouter:
+    base_url: https://openrouter.ai/api/v1
+    rate_limit_delay: 2.0
+    # Set OPENROUTER_API_KEY env var
+
+# Analysis defaults
+analysis:
+  min_cases_per_judge: 10
+  sentencing_z_threshold: 2.0
+  risk_thresholds:
+    disciplinary_high: 2
+    performance_low: 60.0
+    integrity_low: 60.0
+    departure_extreme_pct: 50.0
+
+  # Integrity composite weights
+  composite_weights:
+    corruption_risk: 0.3
+    ethics: 0.4
+    partisanship: 0.3
+
+# Output settings
+output:
+  base_dir: output
+  report_format: markdown
+  figures_dpi: 150
+
+# Logging
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# State expansion plan (Phase order)
+states_pipeline:
+  - az    # Phase 1: Arizona
+  - ca    # Phase 2: California
+  - nv    # Phase 2: Nevada
+  - tx    # Phase 3: Texas
+  - ny    # Phase 3: New York
