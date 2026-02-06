@@ -283,7 +283,7 @@ class LLMAuditor:
                 model_used=self.model,
             )
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         result = AuditResult(
             judge_id=judge_id,
@@ -295,7 +295,7 @@ class LLMAuditor:
             confidence=float(parsed.get("confidence", 0.0)),
             raw_response=raw,
             model_used=self.model,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
         self._results.append(result)
@@ -340,7 +340,7 @@ class LLMAuditor:
                 model_used=self.model,
             )
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         result = AuditResult(
             judge_id=judge_id,
@@ -352,7 +352,7 @@ class LLMAuditor:
             confidence=float(parsed.get("confidence", 0.0)),
             raw_response=raw,
             model_used=self.model,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
         self._results.append(result)
@@ -394,7 +394,7 @@ class LLMAuditor:
                 model_used=self.model,
             )
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         result = AuditResult(
             judge_id=judge_id,
@@ -406,7 +406,7 @@ class LLMAuditor:
             confidence=float(parsed.get("confidence", 0.0)),
             raw_response=raw,
             model_used=self.model,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
         self._results.append(result)

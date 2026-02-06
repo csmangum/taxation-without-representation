@@ -9,11 +9,36 @@ GitHub Pages or as standalone documents.
 import logging
 from pathlib import Path
 from typing import Optional, Dict, List, Any
-from datetime import datetime
+from datetime import datetime, timezone
+import re
 
 import pandas as pd
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_for_filename(text: str) -> str:
+    """
+    Sanitize text for use in filenames to prevent path traversal.
+    
+    Args:
+        text: Input text to sanitize.
+        
+    Returns:
+        Sanitized text safe for use in filenames.
+    """
+    if not text:
+        return "unknown"
+    # Remove path separators and parent directory references
+    text = text.replace("/", "_").replace("\\", "_").replace("..", "_")
+    # Replace any character that is not alphanumeric, underscore, or hyphen
+    text = re.sub(r"[^a-zA-Z0-9_-]", "_", text)
+    # Remove leading dots and spaces
+    text = text.lstrip(". ")
+    # Collapse multiple underscores
+    text = re.sub(r"_+", "_", text)
+    # Ensure non-empty
+    return text[:255] if text else "unknown"
 
 
 class ReportGenerator:
@@ -39,7 +64,8 @@ class ReportGenerator:
             state: Two-letter state code.
             output_dir: Directory to write report files.
         """
-        self.state = state.upper()
+        # Sanitize state to prevent path traversal
+        self.state = _sanitize_for_filename(state).upper()
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -63,7 +89,7 @@ class ReportGenerator:
         lines = [
             f"# Judicial Integrity Analysis: {self.state}",
             "",
-            f"**Generated**: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
+            f"**Generated**: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
             f"**State**: {self.state}",
             "",
             "---",
@@ -160,10 +186,10 @@ class ReportGenerator:
             "- Arizona Commission on Judicial Performance Review for performance data",
             "- U.S. Sentencing Commission for sentencing statistics",
             "",
-            "**Disclaimer**: This report is for educational and transparency purposes "
-            "only. Findings are based on statistical patterns in publicly available data "
-            "and do not constitute legal conclusions or accusations. All analysis should "
-            "be interpreted in context and verified against primary sources.",
+            ("**Disclaimer**: This report is for educational and transparency purposes "
+             "only. Findings are based on statistical patterns in publicly available data "
+             "and do not constitute legal conclusions or accusations. All analysis should "
+             "be interpreted in context and verified against primary sources."),
             "",
         ])
 
@@ -272,15 +298,16 @@ class ReportGenerator:
         lines.extend([
             "---",
             "",
-            "*This profile is generated from publicly available data for "
-            "educational and transparency purposes. It does not constitute "
-            "a legal evaluation or accusation.*",
+            ("*This profile is generated from publicly available data for "
+             "educational and transparency purposes. It does not constitute "
+             "a legal evaluation or accusation.*"),
         ])
 
         report = "\n".join(lines)
 
-        # Save report
-        filepath = self.output_dir / f"judge_{judge_id}.md"
+        # Save report with sanitized judge_id
+        safe_judge_id = _sanitize_for_filename(judge_id)
+        filepath = self.output_dir / f"judge_{safe_judge_id}.md"
         with open(filepath, "w") as f:
             f.write(report)
         logger.info("Saved judge report to %s", filepath)
@@ -309,7 +336,8 @@ class ReportGenerator:
             judge_id = row.get("judge_id", "")
             audit = audit_results.get(judge_id)
             self.generate_judge_report(row, audit_result=audit)
-            filepath = self.output_dir / f"judge_{judge_id}.md"
+            safe_judge_id = _sanitize_for_filename(judge_id)
+            filepath = self.output_dir / f"judge_{safe_judge_id}.md"
             filepaths.append(str(filepath))
 
         logger.info("Generated %d judge reports", len(filepaths))

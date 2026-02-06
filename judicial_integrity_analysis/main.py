@@ -21,12 +21,12 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from src.data_acquisition import JudicialDataAggregator
-from src.preprocessing import JudicialDataPreprocessor
-from src.analysis import JudicialIntegrityAnalyzer
-from src.visualization import JudicialVisualizer
-from src.llm_auditor import LLMAuditor
-from src.report_generator import ReportGenerator
+from judicial_integrity_analysis.src.data_acquisition import JudicialDataAggregator
+from judicial_integrity_analysis.src.preprocessing import JudicialDataPreprocessor
+from judicial_integrity_analysis.src.analysis import JudicialIntegrityAnalyzer
+from judicial_integrity_analysis.src.visualization import JudicialVisualizer
+from judicial_integrity_analysis.src.llm_auditor import LLMAuditor
+from judicial_integrity_analysis.src.report_generator import ReportGenerator
 
 # Configure logging
 logging.basicConfig(
@@ -38,6 +38,12 @@ logger = logging.getLogger(__name__)
 
 def setup_directories(state: str) -> dict:
     """Create necessary directories for a state analysis."""
+    # Validate state to prevent path traversal
+    if not state or not state.replace("_", "").replace("-", "").isalnum():
+        raise ValueError(f"Invalid state code: {state}")
+    if ".." in state or "/" in state or "\\" in state:
+        raise ValueError(f"State code contains invalid path characters: {state}")
+    
     dirs = {
         "data_raw": f"data/{state}/raw",
         "data_processed": f"data/{state}/processed",
@@ -344,7 +350,7 @@ def main():
     )
 
     # Setup
-    dirs = setup_directories(state)
+    setup_directories(state)
     logger.info("Starting Judicial Integrity Analysis for %s", state.upper())
 
     # Collect

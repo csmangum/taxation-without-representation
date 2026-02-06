@@ -7,10 +7,9 @@ and comparative judge profiles.
 """
 
 import logging
-from typing import Optional, Dict, List, Tuple, Any
+from typing import Optional, List, Tuple
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -144,7 +143,7 @@ class JudicialVisualizer:
             for tier in df["risk_tier"]
         ]
 
-        bars = ax.barh(range(len(df)), df["integrity_composite"], color=colors)
+        ax.barh(range(len(df)), df["integrity_composite"], color=colors)
         ax.set_yticks(range(len(df)))
         ax.set_yticklabels(
             [f"{row['name_full']}\n({row['court_name']})" for _, row in df.iterrows()],
