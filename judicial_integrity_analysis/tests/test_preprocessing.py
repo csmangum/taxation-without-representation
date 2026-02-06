@@ -1,7 +1,6 @@
 """Tests for the preprocessing module."""
 
 import pytest
-import numpy as np
 import pandas as pd
 
 from judicial_integrity_analysis.src.preprocessing import JudicialDataPreprocessor

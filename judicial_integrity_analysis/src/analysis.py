@@ -6,8 +6,7 @@ and partisanship using structured judicial data.
 """
 
 import logging
-from typing import Optional, Dict, List, Any, Tuple
-from collections import defaultdict
+from typing import Optional, Dict, List, Any
 
 import numpy as np
 import pandas as pd
@@ -234,9 +233,8 @@ class JudicialIntegrityAnalyzer:
         if demographic_column not in self.sentencing.columns:
             return {"error": f"Column '{demographic_column}' not found in sentencing data"}
 
-        if control_columns is None:
-            control_columns = ["offense_level", "criminal_history"]
-
+        # Note: control_columns parameter is currently unused but kept for API compatibility
+        
         results: Dict[str, Any] = {
             "demographic_column": demographic_column,
             "n_records": len(self.sentencing),

@@ -8,7 +8,7 @@ into structured formats suitable for integrity analysis.
 import logging
 import re
 from pathlib import Path
-from typing import Optional, Dict, List, Any, Tuple
+from typing import Optional, Dict, List, Any
 
 import pandas as pd
 import numpy as np
@@ -141,9 +141,7 @@ class JudicialDataPreprocessor:
         df["court_level"] = df["court_name"].apply(self._classify_court_level)
 
         # Create unique judge ID
-        df["judge_id"] = df.apply(
-            lambda row: self._create_judge_id(row), axis=1
-        )
+        df["judge_id"] = df.apply(self._create_judge_id, axis=1)
 
         df = df.sort_values(["level", "court_name", "name_full"]).reset_index(
             drop=True
@@ -247,13 +245,23 @@ class JudicialDataPreprocessor:
 
     @staticmethod
     def _create_judge_id(row: pd.Series) -> str:
-        """Create a stable unique judge identifier."""
-        parts = [
+        """Create a stable unique judge identifier with sanitization."""
+        raw_parts = [
             str(row.get("name_last", "")).lower().replace(" ", "_"),
             str(row.get("name_first", "")).lower().replace(" ", "_"),
-            str(row.get("court_id", "")),
+            str(row.get("court_id", "")).lower().replace(" ", "_"),
         ]
-        return "_".join(p for p in parts if p)
+        sanitized_parts = []
+        for part in raw_parts:
+            if not part:
+                continue
+            # Replace any character that is not a-z, 0-9, or underscore with underscore
+            safe = re.sub(r"[^a-z0-9_]", "_", part)
+            # Prevent leading dots that could create '.' or '..' segments
+            safe = safe.lstrip(".")
+            if safe:
+                sanitized_parts.append(safe)
+        return "_".join(sanitized_parts) if sanitized_parts else "unknown"
 
     # ==================== Disciplinary Record Processing ====================
 
