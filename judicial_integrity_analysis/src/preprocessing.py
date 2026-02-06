@@ -249,14 +249,14 @@ class JudicialDataPreprocessor:
         raw_parts = [
             str(row.get("name_last", "")).lower().replace(" ", "_"),
             str(row.get("name_first", "")).lower().replace(" ", "_"),
-            str(row.get("court_id", "")).lower().replace(" ", "_"),
+            str(row.get("court_id", "")).replace(" ", "_"),  # Don't lowercase court_id
         ]
         sanitized_parts = []
         for part in raw_parts:
             if not part:
                 continue
             # Replace any character that is not a-z, 0-9, or underscore with underscore
-            safe = re.sub(r"[^a-z0-9_]", "_", part)
+            safe = re.sub(r"[^a-zA-Z0-9_]", "_", part)  # Allow both cases
             # Prevent leading dots that could create '.' or '..' segments
             safe = safe.lstrip(".")
             if safe:
