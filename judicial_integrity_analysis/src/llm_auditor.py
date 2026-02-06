@@ -446,12 +446,28 @@ class LLMAuditor:
                 if v is not None and str(v).strip()
             )
 
-            result = self.audit_conduct_record(
-                judge_name=judge_name,
-                court_name=court_name,
-                conduct_data=data_summary,
-                judge_id=judge_id,
-            )
+            # Dispatch to appropriate audit method based on audit_type
+            if audit_type == "bias_scan":
+                result = self.audit_sentencing_bias(
+                    judge_name=judge_name,
+                    sentencing_summary=data_summary,
+                    judge_id=judge_id,
+                )
+            elif audit_type == "opinion_review":
+                # For opinion_review, use data_summary as opinion text
+                result = self.audit_opinion(
+                    opinion_text=data_summary,
+                    judge_id=judge_id,
+                    judge_name=judge_name,
+                )
+            else:
+                # Default to conduct_summary
+                result = self.audit_conduct_record(
+                    judge_name=judge_name,
+                    court_name=court_name,
+                    conduct_data=data_summary,
+                    judge_id=judge_id,
+                )
             results.append(result)
 
         logger.info("Completed batch audit for %d judges", len(results))

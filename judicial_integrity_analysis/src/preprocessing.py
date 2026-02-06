@@ -224,8 +224,8 @@ class JudicialDataPreprocessor:
         name = re.sub(r"\s+", " ", name).strip()
         # Title case
         name = name.title()
-        # Fix common suffixes
-        for suffix in ["Jr.", "Sr.", "Ii", "Iii", "Iv"]:
+        # Fix Roman numeral suffixes that need uppercasing (longest first to avoid partial matches)
+        for suffix in ["Iii", "Ii", "Iv"]:
             name = name.replace(f" {suffix}", f" {suffix.upper()}")
         return name
 

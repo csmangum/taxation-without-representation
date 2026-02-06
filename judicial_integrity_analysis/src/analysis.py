@@ -120,8 +120,9 @@ class JudicialIntegrityAnalyzer:
         score += np.minimum(df["n_severe"] * 20, 50)
 
         # Missing financial disclosures for federal judges (0-20 points)
-        if "has_financial_disclosures" in df.columns:
-            score += (~df["has_financial_disclosures"].fillna(False)).astype(float) * 10
+        if "has_financial_disclosures" in df.columns and "level" in df.columns:
+            is_federal = df["level"] == "federal"
+            score += (is_federal & ~df["has_financial_disclosures"].fillna(False)).astype(float) * 10
 
         return np.minimum(score, 100)
 
@@ -461,9 +462,13 @@ class JudicialIntegrityAnalyzer:
             )
 
         # Fill NaN
-        for col in ["corruption_risk_score", "ethics_score", "partisanship_score"]:
+        for col in ["corruption_risk_score", "partisanship_score"]:
             if col in df.columns:
                 df[col] = df[col].fillna(0)
+        
+        # Fill ethics_score with neutral value of 50
+        if "ethics_score" in df.columns:
+            df["ethics_score"] = df["ethics_score"].fillna(50)
 
         # Compute overall integrity score (higher = better)
         # Invert corruption risk (lower risk = better)
@@ -478,6 +483,7 @@ class JudicialIntegrityAnalyzer:
             df["integrity_composite"],
             bins=[0, 30, 50, 70, 100],
             labels=["High Risk", "Elevated", "Moderate", "Low Risk"],
+            include_lowest=True,
         )
 
         self._cache["integrity_summary"] = df
